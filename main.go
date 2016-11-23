@@ -43,11 +43,16 @@ func produce(ctx context.Context, reader *bufio.Reader) chan string {
 				return
 			default:
 			}
-			url, _, err := reader.ReadLine()
-			if err == io.EOF {
-				return
+			url, err := reader.ReadString('\n')
+			if err != nil {
+				if err == io.EOF {
+					return
+				} else {
+					fmt.Printf("Error on read: %s\n", err)
+					continue
+				}
 			}
-			urlChan <- string(url)
+			urlChan <- url[0 : len(url)-1]
 		}
 	}()
 	return urlChan
