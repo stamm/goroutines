@@ -80,7 +80,13 @@ func consume(ctx context.Context, urlChan <-chan string) chan countInfo {
 }
 
 func getCount(ctx context.Context, url string) (int, error) {
-	resp, err := http.Get(url)
+	client := &http.Client{}
+	request, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return 0, err
+	}
+	request = request.WithContext(ctx)
+	resp, err := client.Do(request)
 	if err != nil {
 		return 0, err
 	}
