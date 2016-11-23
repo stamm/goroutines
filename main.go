@@ -25,9 +25,12 @@ func main() {
 	ctx := context.Background()
 	urlChan := produce(ctx, bufio.NewReader(os.Stdin))
 	resultChan := consume(ctx, urlChan)
+	sum := 0
 	for res := range resultChan {
-		fmt.Printf("count for %s: %d\n", res.URL, res.Count)
+		fmt.Printf("Count for %s: %d\n", res.URL, res.Count)
+		sum += res.Count
 	}
+	fmt.Printf("Total: %d", sum)
 }
 
 func produce(ctx context.Context, reader *bufio.Reader) chan string {
