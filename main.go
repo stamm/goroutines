@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	workersCount = 2
+	workersCount = 5
 )
 
 type countInfo struct {
