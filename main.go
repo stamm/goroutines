@@ -60,6 +60,7 @@ func consume(ctx context.Context, urlChan <-chan string) chan countInfo {
 		defer close(resultChan)
 
 		throttle := make(chan struct{}, workersCount)
+
 		for url := range urlChan {
 			select {
 			case <-ctx.Done():
@@ -69,12 +70,17 @@ func consume(ctx context.Context, urlChan <-chan string) chan countInfo {
 			throttle <- struct{}{}
 			wg.Add(1)
 			go func(url string) {
+				defer func() {
+					wg.Done()
+					<-throttle
+				}()
+
 				count, err := getCount(ctx, url)
-				if err == nil {
-					resultChan <- countInfo{URL: url, Count: count}
+				if err != nil {
+					fmt.Printf("Error: %s\n", err)
+					return
 				}
-				wg.Done()
-				<-throttle
+				resultChan <- countInfo{URL: url, Count: count}
 			}(url)
 		}
 		wg.Wait()
